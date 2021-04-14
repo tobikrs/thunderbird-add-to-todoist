@@ -25,8 +25,6 @@ function openPopup(message) {
 
     updateTitle(message.subject);
     updateProjects();
-
-    alert("Test");
 }
 
 function onSubmission(event) {
