@@ -1,3 +1,5 @@
+import { fetchProjects, addNewTask } from './common.js'
+
 var ui = {},
     currentMessage;
 

@@ -1,13 +1,8 @@
-const TOKEN = "<test-token>";
+import { getAccessToken } from "./authorize.js";
+
 const REST_API_URL = "https://api.todoist.com/rest/v1/";
 
-async function getOAuthTocken() {
-    return TOKEN; // FIXME: later
-
-    // TODO: load from storage...
-}
-
-function uuidv4() {
+export function uuidv4() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
         (
             c ^
@@ -16,59 +11,68 @@ function uuidv4() {
     );
 }
 
-const METHOD = Object.freeze({
+export const METHOD = Object.freeze({
     GET: "GET",
     POST: "POST",
 });
 
-async function apiRequest(path, method = METHOD.GET, data = false) {
-    let oauthToken = await getOAuthTocken();
-    let url = REST_API_URL + path.trim().replace(/\/(.+)/, "$1");
-
-    let headers = {
-        "Authorization": `Bearer ${oauthToken}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    if (method == METHOD.POST) {
-        headers = {
-            ...headers,
-            "Content-Type": "application/json",
-            "X-Request-Id": uuidv4(),
+function apiRequest(path, method = METHOD.GET, data = false) {
+    return getAccessToken().then((accessToken) => {
+        let url = REST_API_URL + path.trim().replace(/\/(.+)/, "$1");
+        let headers = {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
         };
-    }
 
-    let fetchInfo = {
-        method: method == METHOD.POST ? METHOD.POST : METHOD.GET,
-        headers,
-    };
+        if (method == METHOD.POST) {
+            headers = {
+                ...headers,
+                "Content-Type": "application/json",
+                "X-Request-Id": uuidv4(),
+            };
+        }
 
-    if (!!data) {
-        fetchInfo = {
-            ...fetchInfo,
-            body: JSON.stringify(data),
+        let fetchInfo = {
+            method: method == METHOD.POST ? METHOD.POST : METHOD.GET,
+            headers,
         };
-    }
 
-    let response = await fetch(url, fetchInfo);
+        if (!!data) {
+            fetchInfo = {
+                ...fetchInfo,
+                body: JSON.stringify(data),
+            };
+        }
 
-    if (response.ok) {
-        return await response.json();
-    } else {
-        console.debug(await response.text());
-        throw new Error(
-            `Could not make request to todoist api: ${response.status} for ${response.url}`
-        );
-    }
+        console.debug("FetchInfo: " + JSON.stringify(fetchInfo));
+
+        return fetch(url, fetchInfo).then((response) => {
+            if (response.ok) {
+                return response.json();
+            }
+
+            response.text().then((test) => console.debug("Text: " + text));
+            response.json()
+                .then((json) => console.debug("Json: " + JSON.stringify(json)));
+
+            return Promise.reject(
+                new Error(
+                    `Request to the api failed with status ${response.status} for ${response.url}`
+                )
+            );
+        });
+    });
 }
 
-async function fetchProjects() {
+export function fetchProjects() {
     return apiRequest("projects", METHOD.GET)
         .then((projects) => projects)
-        .catch((err) => console.error(err));
+        .catch((err) =>
+            console.error(`Failed to fetch projects from todoist:\n  ${err}`)
+        );
 }
 
-async function addNewTask(
+export function addNewTask(
     content,
     projectId = NaN,
     labelIds = [],
@@ -110,7 +114,7 @@ async function addNewTask(
             return task;
         })
         .catch((err) => {
-            console.error(err);
+            console.error(`Failed to add a task to todoist:\n  ${err}`);
             return false;
         });
 }

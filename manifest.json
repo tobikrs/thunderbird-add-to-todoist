@@ -1,47 +1,41 @@
 {
-  "manifest_version": 2,
-  "version": "1.0",
-  "name": "Add to Todoist",
-  "description": "Generate Task out of your Mails and add them to Todoist.",
-  "author": "Tobias Krause",
+    "manifest_version": 2,
+    "version": "1.0",
+    "name": "Add to Todoist",
+    "description": "Generate Task out of your Mails and add them to Todoist.",
+    "author": "Tobias Krause",
 
-  "applications": {
-      "gecko": {
-          "id": "add-to-todoist@krauselig.eu",
-          "strict_min_version": "78.0",
-          "strict_max_version": "78.*"
-      }
-  },
-
-  "background": {
-      "scripts": [
-          "/scripts/common.js",
-          "background.js"
-      ]
-  },
-
-  "icons": {
-    "16": "todoist_16.png",
-    "48": "todoist_48.png",
-    "128": "todoist_128.png",
-    "256": "todoist_256.png"
-  },
-
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": false,
-    "browser_style": true
-  },
-
-  "message_display_action": {
-    "default_title": "Todoist...",
-    "default_icon" : "todoist_16.png",
-    "default_popup": "popup.html",
-    "browser_style": false
+    "applications": {
+        "gecko": {
+            "id": "add-to-todoist@krause.tobias",
+            "strict_min_version": "78.0",
+            "strict_max_version": "78.*"
+        }
     },
 
-  "permissions": [
-    "storage",
-    "messagesRead"
-  ]
+    "background": {
+        "page": "background.html"
+    },
+
+    "icons": {
+        "16": "todoist_16.png",
+        "48": "todoist_48.png",
+        "128": "todoist_128.png",
+        "256": "todoist_256.png"
+    },
+
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": false,
+        "browser_style": true
+    },
+
+    "message_display_action": {
+        "default_title": "Todoist...",
+        "default_icon": "todoist_16.png",
+        "default_popup": "popup.html",
+        "browser_style": false
+    },
+
+    "permissions": ["identity", "storage", "messagesRead"]
 }
