@@ -1,0 +1,21 @@
+body {
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+body > * {
+    margin-bottom: 1em;
+}
+
+.visible-on-connected {
+    display: none;
+}
+
+body.connected .visible-on-connected {
+    display: block;
+}
+
+body.connected .visible-on-disconnected {
+    display: none;
+}

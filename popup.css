@@ -1,0 +1,32 @@
+body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 1em;
+    min-width: 256px;
+    min-height: 192px;
+    background-color: Menu;
+    color: MenuText;
+}
+
+.title {
+    text-align: center;
+    font-weight: 900;
+    padding-bottom: 1em;
+}
+
+#addTask > * {
+    display: block;
+    min-width: 160px;
+}
+
+#addTask > :not(:last-child) {
+    margin-bottom: 1em;
+}
+
+.action-bar {
+    text-align: right;
+}
+
+select {
+    height: 2.5em;
+}

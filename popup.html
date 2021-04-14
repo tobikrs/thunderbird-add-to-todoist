@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Add to Todoist</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            media="screen"
+            href="popup.css"
+        />
+        <script src="scripts/common.js"></script>
+    </head>
+    <body>
+        <div class="title">Add to Todoist</div>
+        <form id="addTask">
+            <input id="title" type="text" placeholder="Title of task" required autofocus autocomplete="off"/>
+            <select id="projects"></select>
+            <div class="action-bar">
+                <button id="cancelBtn" type="button">Cancel</button>
+                <button id="submitBtn" type="submit">Add Task</button>
+            </div>
+        </form>
+        <script src="scripts/popup.js"></script>
+    </body>
+</html>
