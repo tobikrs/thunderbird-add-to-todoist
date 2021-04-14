@@ -1,8 +1,8 @@
 body {
     box-sizing: border-box;
     margin: 0;
-    padding: 1em;
-    min-width: 256px;
+    padding: 0.75em 1em;
+    min-width: 384px;
     min-height: 192px;
     background-color: Menu;
     color: MenuText;
@@ -11,15 +11,50 @@ body {
 .title {
     text-align: center;
     font-weight: 900;
-    padding-bottom: 1em;
+    padding: 2px 0 0;
 }
 
-#addTask > * {
-    display: block;
-    min-width: 160px;
+img.logo {
+    position: absolute;
+    top: 0.75em;
+    left: 0.75em;
 }
 
-#addTask > :not(:last-child) {
+.form-control {
+    margin-top: 2em;
+    position: relative;
+    width: 100%;
+}
+
+.form-control > input {
+    min-width: calc(384px - 2em);
+}
+
+.form-control > select {
+    width: 100%;
+}
+
+.form-control > label {
+    position: absolute;
+    left: 0.75em;
+    right: 0.75em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.875em;
+    color: #fffc;
+    transition: all 300ms;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label,
+select.has-value + label {
+    top: -1.35em;
+    left: 4px;
+    transform: translateY(0);
+    font-size: 0.75em;
+}
+
+form > :not(:last-child) {
     margin-bottom: 1em;
 }
 
@@ -28,5 +63,5 @@ body {
 }
 
 select {
-    height: 2.5em;
+    height: 2.25em;
 }

@@ -12,10 +12,21 @@
         <script src="scripts/common.js"></script>
     </head>
     <body>
-        <div class="title">Add to Todoist</div>
+        <img class="logo" src=todoist_48.png height="24" width="24"/>
+        <div class="title">
+            Add to Todoist
+        </div>
         <form id="addTask">
-            <input id="title" type="text" placeholder="Title of task" required autofocus autocomplete="off"/>
-            <select id="projects"></select>
+            <div class="form-control">
+                <input id="title" type="text" name="title" placeholder="" required autofocus autocomplete="off"/>
+                <label for="title">Title of the task</label>
+            </div>
+
+            <div class="form-control">
+                <select id="projects" name="project"></select>
+                <label for="project">Project auswählen</label>
+            </div>
+
             <div class="action-bar">
                 <button id="cancelBtn" type="button">Cancel</button>
                 <button id="submitBtn" type="submit">Add Task</button>

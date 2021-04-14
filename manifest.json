@@ -35,7 +35,7 @@
 
   "message_display_action": {
     "default_title": "Todoist...",
-    "default_icon" : "todoist_48.png",
+    "default_icon" : "todoist_16.png",
     "default_popup": "popup.html",
     "browser_style": false
     },

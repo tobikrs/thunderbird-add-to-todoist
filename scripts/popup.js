@@ -1,13 +1,12 @@
 var ui = {},
     currentMessage;
 
-for (let element of document.querySelectorAll("[id]")) {
+for (let element of document.querySelectorAll("[id]")[0]) {
     ui[element.id] = element;
 }
 
-browser.messageDisplay.onMessageDisplayed.addListener(closePopup)
-ui.cancelBtn.addEventListener("click", closePopup)
-ui.addTask.addEventListener("submit", onSubmission);
+browser.messageDisplay.onMessageDisplayed.addListener(closePopup);
+ui.cancelBtn.addEventListener("click", closePopup);
 
 // get current displayed message
 browser.tabs
@@ -19,6 +18,8 @@ browser.tabs
         let tabId = tabs[0].id;
         browser.messageDisplay.getDisplayedMessage(tabId).then(openPopup);
     });
+
+ui.projects.addEventListener("input", handleSelectionChange);
 
 function openPopup(message) {
     currentMessage = message;
@@ -32,11 +33,7 @@ function onSubmission(event) {
     let projectId = parseInt(ui.projects.value, 10);
     let messageUrl = getMessageUrl();
 
-    if (
-        !!subject &&
-        !!currentMessage &&
-        currentMessage.subject === subject
-    ) {
+    if (!!subject && !!currentMessage && currentMessage.subject === subject) {
         let content = `${subject}\n\n`;
 
         if (messageUrl) {
@@ -45,7 +42,7 @@ function onSubmission(event) {
 
         addNewTask(content, projectId).then();
 
-        console.log(event)
+        console.log(event);
     }
 
     event.preventDefault();
@@ -77,10 +74,20 @@ function updateProjects() {
                     }
                 }
             );
+
+        handleSelectionChange();
         }
     });
 }
 
+function handleSelectionChange() {
+    if (!!ui.projects.value) {
+        ui.projects.classList.add("has-value");
+    } else {
+        ui.projects.classList.remove("has-value");
+    }
+}
+
 function closePopup() {
-    window.close()
+    window.close();
 }
