@@ -9,29 +9,28 @@
             media="screen"
             href="popup.css"
         />
-        <script type="module" src="scripts/utils.js"></script>
         <script type="module" src="scripts/authorize.js"></script>
         <script type="module" src="scripts/common.js"></script>
     </head>
     <body>
-        <img class="logo" src=todoist_48.png height="24" width="24"/>
-        <div class="title">
+        <img class="logo" src="todoist_48.png" height="24" width="24"/>
+        <div class="title" id="title">
             Add to Todoist
         </div>
         <form id="addTask">
             <div class="form-control">
-                <input id="title" type="text" name="title" placeholder="" required autofocus autocomplete="off"/>
-                <label for="title">Title of the task</label>
+                <input id="taskContent" type="text" name="content" placeholder="" required autofocus autocomplete="off"/>
+                <label for="content">Title of the task</label>
             </div>
 
             <div class="form-control">
-                <select id="projects" name="project"></select>
+                <select id="project" name="project"></select>
                 <label for="project">Project auswählen</label>
             </div>
 
             <div class="action-bar">
                 <button id="cancelBtn" type="button">Cancel</button>
-                <button id="submitBtn" type="submit">Add Task</button>
+                <button id="submitBtn" type="submit" disabled>Add Task</button>
             </div>
         </form>
         <script type="module" src="scripts/popup.js"></script>

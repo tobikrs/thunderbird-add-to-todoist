@@ -1,14 +1,16 @@
-import { fetchProjects, addNewTask } from './common.js'
+import { fetchProjects, addNewTask } from "./common.js";
 
-var ui = {},
-    currentMessage;
+var ui = {};
 
-for (let element of document.querySelectorAll("[id]")[0]) {
+for (let element of document.querySelectorAll("[id]")) {
     ui[element.id] = element;
 }
 
 browser.messageDisplay.onMessageDisplayed.addListener(closePopup);
 ui.cancelBtn.addEventListener("click", closePopup);
+ui.addTask.addEventListener("submit", onSubmission);
+ui.taskContent.addEventListener("input", onTitleChanged);
+ui.project.addEventListener("input", onSelectionChanged);
 
 // get current displayed message
 browser.tabs
@@ -21,33 +23,40 @@ browser.tabs
         browser.messageDisplay.getDisplayedMessage(tabId).then(openPopup);
     });
 
-ui.projects.addEventListener("input", handleSelectionChange);
-
 function openPopup(message) {
-    currentMessage = message;
-
     updateTitle(message.subject);
     updateProjects();
 }
 
 function onSubmission(event) {
-    let subject = ui.title.value;
-    let projectId = parseInt(ui.projects.value, 10);
-    let messageUrl = getMessageUrl();
+    ui.taskContent.disabled = ui.project.disabled = true;
 
-    if (!!subject && !!currentMessage && currentMessage.subject === subject) {
-        let content = `${subject}\n\n`;
+    const subject = ui.taskContent.value;
+    const projectId = parseInt(ui.project.value, 10);
+    const messageUrl = getMessageUrl();
+
+    if (!!subject) {
+        let content = `${subject}`;
 
         if (messageUrl) {
             content += `*[Open in Thunderbird](${""})*\n\n`;
         }
 
-        addNewTask(content, projectId).then();
-
-        console.log(event);
+        addNewTask(content, projectId)
+            .then(onNewTask)
+            .catch(_status => false)
+            .finally(() => (ui.taskContent.disabled = ui.project.disabled = false));
     }
 
     event.preventDefault();
+}
+
+function onNewTask(task) {
+    // TODO: show success message
+
+    // console.log(`Task created: ${JSON.stringify(task)}`);
+
+    setTimeout(closePopup, 500);
 }
 
 function getMessageUrl() {
@@ -58,36 +67,46 @@ function getMessageUrl() {
 
 function updateTitle(title) {
     if (!!title && title.length > 0) {
-        ui.title.value = title;
+        ui.taskContent.value = title;
     }
 }
 
 function updateProjects() {
-    fetchProjects().then((projects) => {
-        if (typeof projects == "object") {
-            Array.prototype.forEach.call(
-                [...projects].sort((fst, snd) => fst.order - snd.order || -1),
-                (project) => {
-                    if (!!project.id && !!project.name) {
-                        var opt = document.createElement("option");
-                        opt.value = project.id;
-                        opt.innerHTML = project.name;
-                        ui.projects.appendChild(opt);
-                    }
-                }
-            );
+    ui.submitBtn.disabled = true;
 
-        handleSelectionChange();
-        }
-    });
+    fetchProjects()
+        .then((projects) => {
+            if (typeof projects == "object") {
+                Array.prototype.forEach.call(
+                    [...projects].sort(
+                        (fst, snd) => fst.order - snd.order || -1
+                    ),
+                    (project) => {
+                        if (!!project.id && !!project.name) {
+                            var opt = document.createElement("option");
+                            opt.value = project.id;
+                            opt.innerHTML = project.name;
+                            ui.project.appendChild(opt);
+                        }
+                    }
+                );
+            }
+        })
+        .then(onSelectionChanged);
 }
 
-function handleSelectionChange() {
-    if (!!ui.projects.value) {
-        ui.projects.classList.add("has-value");
+function onSelectionChanged() {
+    ui.submitBtn.disabled = false;
+
+    if (!!ui.project.value) {
+        ui.project.classList.add("has-value");
     } else {
-        ui.projects.classList.remove("has-value");
+        ui.project.classList.remove("has-value");
     }
+}
+
+function onTitleChanged() {
+    ui.submitBtn.disabled = !ui.taskContent.value;
 }
 
 function closePopup() {

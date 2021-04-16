@@ -1,76 +1,103 @@
-import { uuidv4 } from "./common.js";
+import { uuidv4, handleRequestNotOk } from "./common.js";
 
 const CLIENT_ID = "c2d0475590df46fdaeabe26577959f32";
-const SCOPES = ["task:add", "data:read"];
-const REDIRECT_URL = `https://127.0.0.1/mozoauth2/${messenger.identity.getRedirectURL().replace(/.*\:\/\/([^\.]*)\..*/, '$1')}`;
+const CLIENT_SECRET = "f8aeb08c99db46ab8cf547d816c30f6a";
+const SCOPES = ["data:read_write"];
+const REDIRECT_URL = "https://tobikrs.github.io/thunderbird-add-to-todoist/";
+const TOKEN_EXCHANGE_URL = "https://todoist.com/oauth/access_token";
 
 const AUTH_URL = `https://todoist.com/oauth/authorize\
 ?client_id=${CLIENT_ID}\
-&scope=${encodeURIComponent(SCOPES.join(","))}\
-&redirect_uri=${encodeURIComponent(REDIRECT_URL)}`;
+&scope=${encodeURIComponent(SCOPES.join(","))}`;
 
-const VALIDATION_URL = "";
+var authWindow;
 
-function extractAccessToken(redirectUri) {
-    let m = redirectUri.match(/[#?](.*)/);
-    if (!m || m.length < 1) return null;
-    let params = new URLSearchParams(m[1].split("#")[0]);
-    return params.getAll();
+function saveAccessToken(token) {
+    return messenger.storage.local
+        .set({ accessToken: token })
+        .then(() => token);
 }
 
-function validateAuth(redirectURL) {
-    console.log(redirectURL);
+function exchangeAccessToken(code) {
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
 
-    console.log(extractAccessToken(redirectURL));
+    const body = JSON.stringify({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        code,
+    });
+
+    return fetch(TOKEN_EXCHANGE_URL, {
+        method: "POST",
+        headers,
+        mode: "cors",
+        body,
+    }).then((response) => {
+        if (response.status === 200) {
+            return response.json().then(({ access_token }) => access_token);
+        }
+
+        return handleRequestNotOk(response, "Request for token exchange");
+    });
 }
 
-function authorize() {
-    return setAuthState()
-        .then((state) => {
-            const url = AUTH_URL + `&state=${state}`;
-            console.debug("AuthURL: " + url);
+async function verifyAuthorization(message) {
+    if (!!message.error) {
+        // TODO: handle potential errors (https://developer.todoist.com/guides/#step-1-authorization-request)
+        console.error(
+            `Authorization request failed with Error: ${message.error}`
+        );
+    }
 
-            return messenger.identity.launchWebAuthFlow({
-                interactive: true,
-                url,
-                // redirect_uri: REDIRECT_URL
-            });
-        })
-        .catch((err) => {
-            throw new Error(`Failed to set new auth state:\n  ${err}`);
-        });
+    if (!!message.code && !!message.state) {
+        const { authState } = await getAuthState();
+
+        if (authWindow.id) {
+            browser.windows.remove(authWindow.id);
+        }
+
+        if (message.state == authState) {
+            return Promise.resolve(message.code);
+        }
+    }
+
+    return Promise.reject(new Error("Authorization could not be verified."));
+}
+
+async function requestAuthorization() {
+    const state = await newAuthState();
+    const url = AUTH_URL + `&state=${state}`;
+
+    var code = new Promise((resolve, reject) => {
+        browser.runtime.onMessage.addListener((msg) =>
+            verifyAuthorization(msg).then(resolve).catch(reject)
+        );
+    });
+
+    authWindow = await browser.windows.create({
+        url,
+        type: "popup",
+    });
+
+    return code;
 }
 
 function getAuthState() {
-    return messenger.storage.local
-        .get({ authState })
-        .then((state) => state)
-        .catch((err) =>
-            Promise.reject(
-                new Error(
-                    `Failed to read auth state from local storage:\n  ${err}`
-                )
-            )
-        );
+    return messenger.storage.local.get("authState");
 }
 
-function setAuthState() {
+function newAuthState() {
     const state = uuidv4();
 
-    return messenger.storage.local
-        .set({ authState: state })
-        .then((_) => state)
-        .catch((err) => {
-            throw new Error(`Failed to store auth state:\n  ${err}`);
-        });
+    return messenger.storage.local.set({ authState: state }).then((_) => state);
 }
 
-export function getNewAccessToken() {
-    return authorize()
-        .then(validateAuth)
-        .catch((err) => {
-            throw new Error(`Failed to authorize: ${err}`);
-        });
+function getNewAccessToken() {
+    return requestAuthorization()
+        .then(exchangeAccessToken)
+        .then(saveAccessToken)
+        .then();
 }
 
 export function getAccessToken() {
@@ -83,23 +110,13 @@ export function getAccessToken() {
 
             return getNewAccessToken()
                 .then((token) => token)
-                .catch((err) =>
-                    Promise.reject(
-                        new Error(`Failed to get a new access token:\n  ${err}`)
-                    )
-                );
+                .catch((err) => {
+                    return Promise.reject(
+                        `Failed to get a new access token:\n${err}`.replaceAll(
+                            "\n",
+                            "\n  "
+                        )
+                    );
+                });
         });
-}
-
-export function saveAccessToken(token = "") {
-    return browser.storage.local
-        .set({ accessToken: token })
-        .then((_) => token)
-        .catch((err) =>
-            Promise.reject(
-                new Error(
-                    `Can't write property 'accessToken' to local storage:\n  ${err}`
-                )
-            )
-        );
 }

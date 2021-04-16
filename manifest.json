@@ -37,5 +37,23 @@
         "browser_style": false
     },
 
-    "permissions": ["identity", "storage", "messagesRead"]
+    "content_scripts": [
+        {
+            "matches": [
+                "*://tobikrs.github.io/thunderbird-add-to-todoist*"
+            ],
+            "match_about_blank": false,
+            "js": ["scripts/redirect.js"],
+            "run_at": "document_idle"
+        }
+    ],
+
+    "permissions": [
+        "identity",
+        "storage",
+        "messagesRead",
+        "<all_urls>",
+        "*://tobikrs.github.io/*",
+        "tabs"
+    ]
 }
