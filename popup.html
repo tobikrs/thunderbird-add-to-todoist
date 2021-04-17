@@ -13,26 +13,43 @@
         <script type="module" src="scripts/common.js"></script>
     </head>
     <body>
-        <img class="logo" src="todoist_48.png" height="24" width="24"/>
-        <div class="title" id="title">
-            Add to Todoist
+        <div class="header">
+            <img class="logo" src="assets/todoist_48.png" height="24" width="24" />
+            <div class="title" id="title">Add to Todoist</div>
+            <button id="closeBtn" type="button"><i class="icon icon-close" role="img"></i></button>
         </div>
-        <form id="addTask">
-            <div class="form-control">
-                <input id="taskContent" type="text" name="content" placeholder="" required autofocus autocomplete="off"/>
-                <label for="content">Title of the task</label>
-            </div>
+        <div id="content">
+            <form id="addTask">
+                <div class="form-control">
+                    <input
+                        id="taskContent"
+                        type="text"
+                        name="content"
+                        required
+                        autofocus
+                        autocomplete="off"
+                    />
+                    <label for="content">Title of the task</label>
+                </div>
 
-            <div class="form-control">
-                <select id="project" name="project"></select>
-                <label for="project">Project auswählen</label>
-            </div>
+                <div class="form-control">
+                    <select id="project" name="project"></select>
+                    <label for="project">Project auswählen</label>
+                </div>
 
-            <div class="action-bar">
-                <button id="cancelBtn" type="button">Cancel</button>
-                <button id="submitBtn" type="submit" disabled>Add Task</button>
-            </div>
-        </form>
+                <div class="action-bar">
+                    <button id="cancelBtn" type="button">Cancel</button>
+                    <button id="submitBtn" type="submit" disabled>
+                        Add Task
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div id="response">
+            <img class="icon" src="assets/success.png" height="128" width="128" />
+            <div class="text">Task created</div>
+            <button id="responseActionBtn" type="button">Close</button>
+        </div>
         <script type="module" src="scripts/popup.js"></script>
     </body>
 </html>

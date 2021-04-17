@@ -8,20 +8,27 @@ for (let element of document.querySelectorAll("[id]")) {
 
 browser.messageDisplay.onMessageDisplayed.addListener(closePopup);
 ui.cancelBtn.addEventListener("click", closePopup);
+ui.closeBtn.addEventListener("click", closePopup);
 ui.addTask.addEventListener("submit", onSubmission);
 ui.taskContent.addEventListener("input", onTitleChanged);
 ui.project.addEventListener("input", onSelectionChanged);
 
-// get current displayed message
-browser.tabs
-    .query({
-        active: true,
-        currentWindow: true,
-    })
-    .then((tabs) => {
-        let tabId = tabs[0].id;
-        browser.messageDisplay.getDisplayedMessage(tabId).then(openPopup);
-    });
+init();
+
+function init() {
+    ui.response.style.disabled = "none";
+    ui.content.style.display = "block";
+
+    browser.tabs
+        .query({
+            active: true,
+            currentWindow: true,
+        })
+        .then((tabs) => {
+            let tabId = tabs[0].id;
+            browser.messageDisplay.getDisplayedMessage(tabId).then(openPopup);
+        });
+}
 
 function openPopup(message) {
     updateTitle(message.subject);
@@ -44,19 +51,91 @@ function onSubmission(event) {
 
         addNewTask(content, projectId)
             .then(onNewTask)
-            .catch(_status => false)
-            .finally(() => (ui.taskContent.disabled = ui.project.disabled = false));
+            .catch(onError)
+            .finally(
+                () => (ui.taskContent.disabled = ui.project.disabled = false)
+            );
     }
 
     event.preventDefault();
 }
 
 function onNewTask(task) {
-    // TODO: show success message
-
     // console.log(`Task created: ${JSON.stringify(task)}`);
+    // TODO: Option to open task
+    
+    ui.responseActionBtn.addEventListener("click", () => {
+        animateOut(ui.response).then(closePopup);
+    });
 
-    setTimeout(closePopup, 500);
+    showResponseMessage("Task created").then(() =>
+        animateIn(ui.responseActionBtn)
+    );
+}
+
+function onError(_status) {
+    ui.responseActionBtn.innerHTML = "Try again";
+
+    ui.responseActionBtn.addEventListener("click", () => {
+        animateOut(ui.response).then(init);
+    });
+
+    showResponseMessage(null, true).then(() => animateIn(ui.responseActionBtn));
+}
+
+function showResponseMessage(message, isError = false) {
+    const icon = ui.response.getElementsByClassName("icon")[0];
+    const text = ui.response.getElementsByClassName("text")[0];
+
+    icon.src = `assets/${!isError ? "success" : "error"}.png`;
+    text.innerHTML = message || (isError ? "Oops! Something went wrong." : "");
+
+    ui.content.style.display = "none";
+
+    return animateIn(ui.response, true).then(() => animateIn(text));
+}
+
+function animateIn(el, withRotation = false, duration = 300, display) {
+    el.style.opacity = 0;
+    el.style.display = display || "block";
+
+    return el
+        .animate(
+            [
+                {
+                    transform: "rotateY(0)",
+                    opacity: 0,
+                },
+                {
+                    transform: `rotateY(${withRotation ? "360deg" : "0"})`,
+                    opacity: 1,
+                },
+            ],
+            {
+                duration,
+            }
+        )
+        .finished.then(() => (el.style.opacity = 1));
+}
+
+function animateOut(el) {
+    return el
+        .animate(
+            [
+                {
+                    transform: "scaleY(1)",
+                    height: `${el.offsetHeight}px`,
+                },
+                {
+                    transform: "scaleY(0)",
+                    height: "0px",
+                },
+            ],
+            {
+                duration: 150,
+            }
+        )
+        .finished.then(() => (el.style.display = "none"));
 }
 
 function getMessageUrl() {

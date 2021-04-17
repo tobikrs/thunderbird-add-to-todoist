@@ -1,11 +1,19 @@
 body {
     box-sizing: border-box;
     margin: 0;
-    padding: 0.75em 1em;
     min-width: 384px;
     min-height: 192px;
     background-color: Menu;
     color: MenuText;
+    overflow: hidden;
+}
+
+
+/* -- HEADER  ----------------------------------------- */
+
+.header {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0.75em 1em;
 }
 
 .title {
@@ -18,6 +26,66 @@ img.logo {
     position: absolute;
     top: 0.75em;
     left: 0.75em;
+}
+
+#closeBtn {
+    position: absolute;
+    display: inline-block;
+    top: 0.75em;
+    right: 0.75em;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    text-align: center;
+    border: none;
+    border-radius: 4px;
+    color: ButtonText;
+    background-color: ButtonFace;
+}
+
+#closeBtn:hover {
+    border: 1px solid -moz-ButtonDefault;
+    background-color: -moz-ButtonHoverFace;
+    color: -moz-ButtonHoverText;
+}
+
+.icon {
+    font: normal 1em/1 Arial, sans-serif;
+    display: inline-block;
+}
+
+.icon.icon-close:before {
+    content: "\2715";
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+
+/* -- RESPONSE  ------------------------------------ */
+
+#response {
+    display: none;
+    margin: 2em 0;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+#response .text {
+    opacity: 0;
+    padding: 12px 0;
+    font-weight: 600;
+}
+
+#responseActionBtn {
+    margin: 0.5em auto 0;
+    opacity: 0;
+}
+
+
+/* -- FORMULAR – NEW TASK  ------------------------- */
+
+#content {
+    padding: 0 1em 0.75em;
 }
 
 .form-control {

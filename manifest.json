@@ -18,10 +18,10 @@
     },
 
     "icons": {
-        "16": "todoist_16.png",
-        "48": "todoist_48.png",
-        "128": "todoist_128.png",
-        "256": "todoist_256.png"
+        "16": "assets/todoist_16.png",
+        "48": "assets/todoist_48.png",
+        "128": "assets/todoist_128.png",
+        "256": "assets/todoist_256.png"
     },
 
     "options_ui": {
@@ -31,8 +31,8 @@
     },
 
     "message_display_action": {
-        "default_title": "Todoist...",
-        "default_icon": "todoist_16.png",
+        "default_title": "Add to Todoist",
+        "default_icon": "assets/todoist_16.png",
         "default_popup": "popup.html",
         "browser_style": false
     },
